@@ -20,12 +20,6 @@ CGFloat const kMMPopLabelCornerRadius = 6.0f;
 CGFloat const kMMPopLabelTipPadding = 8.0f;
 
 
-typedef enum : NSUInteger {
-    MMPopLabelTopArrow,
-    MMPopLabelBottomArrow,
-} MMPopLabelArrowType;
-
-
 ///////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private Interface
 ///////////////////////////////////////////////////////////////////////////////
@@ -80,6 +74,7 @@ typedef enum : NSUInteger {
         self.label.text = text;
         self.label.backgroundColor = [UIColor clearColor];
         self.label.numberOfLines = 0;
+        self.isTargetViewAnimated = NO;
         
         [self addSubview:self.label];
     }
@@ -213,20 +208,129 @@ typedef enum : NSUInteger {
     [self setNeedsDisplay];
     
     self.transform = CGAffineTransformMakeScale(0, 0);
-    view.transform = CGAffineTransformMakeScale(0, 0);
+    if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(0, 0);
     [UIView animateKeyframesWithDuration:duration/6.0f delay:delay options:0 animations:^{
         self.center = centerPoint;
         self.alpha = 1.0f;
         self.transform = CGAffineTransformMakeScale(1.2, 1.2);
-        view.transform = CGAffineTransformMakeScale(1.2, 1.2);
+        if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(1.2, 1.2);
     } completion:^(BOOL finished) {
         [UIView animateKeyframesWithDuration:duration/6.0f delay:0 options:0 animations:^{
             self.transform = CGAffineTransformMakeScale(0.9, 0.9);
-            view.transform = CGAffineTransformMakeScale(0.9, 0.9);
+            if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(0.9, 0.9);
         } completion:^(BOOL finished) {
             [UIView animateKeyframesWithDuration:duration/6.0f delay:0 options:0 animations:^{
                 self.transform = CGAffineTransformMakeScale(1, 1);
-                view.transform = CGAffineTransformMakeScale(1, 1);
+                if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(1, 1);
+            } completion:^(BOOL finished) {
+                // completion block empty?
+            }];
+        }];
+    }];
+}
+
+- (void)popAtView:(UIView *)view withYOffset:(float)yOffset
+{
+    if (self.hidden == NO) return;
+    
+    _arrowType = MMPopLabelTopArrow;
+    
+    CGPoint position = CGPointMake(view.center.x, view.center.y + view.frame.size.height / 2 + kMMPopLabelViewPadding);
+    self.center = position;
+    if (position.x + (self.frame.size.width / 2) > [UIScreen mainScreen].applicationFrame.size.width) {
+        CGFloat diff = (self.frame.size.width + self.frame.origin.x - [UIScreen mainScreen].applicationFrame.size.width) + kMMPopLabelSidePadding;
+        position = CGPointMake(view.center.x - diff, position.y);
+    } else if (self.frame.origin.x < 0) {
+        CGFloat diff = - self.frame.origin.x + kMMPopLabelSidePadding;
+        position = CGPointMake(view.center.x + diff, view.center.y + view.frame.size.height / 2);
+    }
+    
+    if (self.frame.origin.y + self.frame.size.height > [UIScreen mainScreen].applicationFrame.size.height) {
+        _arrowType = MMPopLabelBottomArrow;
+        position = CGPointMake(position.x,
+                               [UIScreen mainScreen].applicationFrame.size.height - (self.frame.size.height + view.frame.size.height + kMMPopLabelViewPadding));
+    }
+    
+    CGPoint centerPoint = CGPointMake(position.x, position.y + yOffset);
+    
+    self.center = position;
+    
+    NSInteger duration = 1.0f;
+    NSInteger delay = 0.0f;
+    
+    self.alpha = 0.0f;
+    self.hidden = NO;
+    
+    
+    _viewCenter = CGPointMake(view.center.x - self.frame.origin.x - 8, view.center.y + yOffset);
+    [self setNeedsDisplay];
+    
+    self.transform = CGAffineTransformMakeScale(0, 0);
+    if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(0, 0);
+    [UIView animateKeyframesWithDuration:duration/6.0f delay:delay options:0 animations:^{
+        self.center = centerPoint;
+        self.alpha = 1.0f;
+        self.transform = CGAffineTransformMakeScale(1.2, 1.2);
+        if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(1.2, 1.2);
+    } completion:^(BOOL finished) {
+        [UIView animateKeyframesWithDuration:duration/6.0f delay:0 options:0 animations:^{
+            self.transform = CGAffineTransformMakeScale(0.9, 0.9);
+            if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(0.9, 0.9);
+        } completion:^(BOOL finished) {
+            [UIView animateKeyframesWithDuration:duration/6.0f delay:0 options:0 animations:^{
+                self.transform = CGAffineTransformMakeScale(1, 1);
+                if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(1, 1);
+            } completion:^(BOOL finished) {
+                // completion block empty?
+            }];
+        }];
+    }];
+}
+
+- (void)popAtPoint:(CGPoint)point
+{
+    if (self.hidden == NO) return;
+    
+    _arrowType = MMPopLabelNoArrow;
+    
+    CGPoint position = point;
+    self.center = position;
+    /*if (position.x + (self.frame.size.width / 2) > [UIScreen mainScreen].applicationFrame.size.width) {
+        CGFloat diff = (self.frame.size.width + self.frame.origin.x - [UIScreen mainScreen].applicationFrame.size.width) + kMMPopLabelSidePadding;
+        position = CGPointMake(point.x - diff, point.y);
+    } else if (self.frame.origin.x < 0) {
+        CGFloat diff = - self.frame.origin.x + kMMPopLabelSidePadding;
+        position = CGPointMake(point.x + diff, vpoin.y + view.frame.size.height / 2);
+    }*/
+    
+    if (self.frame.origin.y + self.frame.size.height > [UIScreen mainScreen].applicationFrame.size.height) {
+        _arrowType = MMPopLabelNoArrow;
+        position = point;
+    }
+    
+    CGPoint centerPoint = CGPointMake(position.x, position.y + self.frame.size.height / 2);
+    self.center = position;
+    
+    NSInteger duration = 1.0f;
+    NSInteger delay = 0.0f;
+    
+    self.alpha = 0.0f;
+    self.hidden = NO;
+    
+    _viewCenter = point;
+    [self setNeedsDisplay];
+    
+    self.transform = CGAffineTransformMakeScale(0, 0);
+    [UIView animateKeyframesWithDuration:duration/6.0f delay:delay options:0 animations:^{
+        self.center = centerPoint;
+        self.alpha = 1.0f;
+        self.transform = CGAffineTransformMakeScale(1.2, 1.2);
+    } completion:^(BOOL finished) {
+        [UIView animateKeyframesWithDuration:duration/6.0f delay:0 options:0 animations:^{
+            self.transform = CGAffineTransformMakeScale(0.9, 0.9);
+        } completion:^(BOOL finished) {
+            [UIView animateKeyframesWithDuration:duration/6.0f delay:0 options:0 animations:^{
+                self.transform = CGAffineTransformMakeScale(1, 1);
             } completion:^(BOOL finished) {
                 // completion block empty?
             }];
@@ -268,9 +372,12 @@ typedef enum : NSUInteger {
     }
     CGContextRotateCTM(context, -45 * M_PI / 180);
     
-    UIBezierPath* tipPath = [UIBezierPath bezierPathWithRect: CGRectMake(0, 0, 11, 11)];
-    [_labelColor setFill];
-    [tipPath fill];
+    if(_arrowType != MMPopLabelNoArrow){
+    
+        UIBezierPath* tipPath = [UIBezierPath bezierPathWithRect: CGRectMake(0, 0, 11, 11)];
+        [_labelColor setFill];
+        [tipPath fill];
+    }
     
     CGContextRestoreGState(context);
     
