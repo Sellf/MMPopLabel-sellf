@@ -75,6 +75,7 @@ CGFloat const kMMPopLabelTipPadding = 8.0f;
         self.label.backgroundColor = [UIColor clearColor];
         self.label.numberOfLines = 0;
         self.isTargetViewAnimated = NO;
+        self.dismissOnTouch = NO;
         
         [self addSubview:self.label];
     }
@@ -251,7 +252,7 @@ CGFloat const kMMPopLabelTipPadding = 8.0f;
                                [UIScreen mainScreen].applicationFrame.size.height - (self.frame.size.height + view.frame.size.height + kMMPopLabelViewPadding));
     }
     
-    CGPoint centerPoint = CGPointMake(position.x, position.y + yOffset);
+    CGPoint centerPoint = CGPointMake(position.x, position.y + yOffset + self.frame.size.height / 2);
     
     self.center = position;
     
@@ -341,7 +342,10 @@ CGFloat const kMMPopLabelTipPadding = 8.0f;
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [self dismiss];
+    if(self.dismissOnTouch){
+    
+        [self dismiss];
+    }
 }
 
 

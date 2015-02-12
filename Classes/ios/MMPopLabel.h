@@ -29,6 +29,7 @@ typedef enum : NSUInteger {
 @property (nonatomic, retain) UIFont *labelFont UI_APPEARANCE_SELECTOR;
 @property (nonatomic, retain) UIFont *buttonFont UI_APPEARANCE_SELECTOR;
 @property (assign) BOOL isTargetViewAnimated;
+@property (assign) BOOL dismissOnTouch;
 
 @property (nonatomic, weak) id<MMPopLabelDelegate> delegate;
 
