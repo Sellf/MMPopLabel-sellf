@@ -135,15 +135,15 @@ CGFloat const kMMPopLabelTipPadding = 8.0f;
     self.frame = CGRectMake(self.frame.origin.x,
                             self.frame.origin.y,
                             self.frame.size.width,
-                            self.frame.size.height + 33);
+                            self.frame.size.height + 40);
 
     NSInteger index = 0;
     NSInteger buttonWidth = self.frame.size.width / _buttons.count;
     for (UIButton *b in _buttons) {
         b.tag = index;
-        b.frame = CGRectMake(self.bounds.origin.x + (index * buttonWidth),
-                             self.bounds.origin.y + self.bounds.size.height - 44,
-                             buttonWidth, 33);
+        b.frame = CGRectMake(self.bounds.origin.x + (index * buttonWidth) + 10,
+                             self.bounds.origin.y + self.bounds.size.height - 50,
+                             buttonWidth - 20, 33);
 
         if (_buttonFont) {
             b.titleLabel.font = _buttonFont;
@@ -153,6 +153,9 @@ CGFloat const kMMPopLabelTipPadding = 8.0f;
 
         [b setTitleColor:_labelTextColor forState:UIControlStateNormal];
         [b setTitleColor:_labelTextHighlightColor forState:UIControlStateHighlighted];
+        b.layer.borderColor = _labelTextColor.CGColor;
+        b.layer.borderWidth = 1.0;
+        b.layer.cornerRadius = 4.0;
         
         [b addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:b];
