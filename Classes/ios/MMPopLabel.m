@@ -14,10 +14,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-CGFloat const kMMPopLabelSidePadding = 10.0f;
+CGFloat const kMMPopLabelSidePadding = 5.0f;
 CGFloat const kMMPopLabelViewPadding = 2.0f;
 CGFloat const kMMPopLabelCornerRadius = 6.0f;
-CGFloat const kMMPopLabelTipPadding = 8.0f;
+CGFloat const kMMPopLabelTipPadding = 12.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -106,15 +106,15 @@ CGFloat const kMMPopLabelTipPadding = 8.0f;
     self.label.font = _labelFont;
 
     /* resize label and view */
-    CGFloat maxWidth = [UIScreen mainScreen].applicationFrame.size.width * 0.80f;
-    CGFloat maxHeight = [UIScreen mainScreen].applicationFrame.size.height * 0.80f;
+    CGFloat maxWidth = [UIScreen mainScreen].applicationFrame.size.width * 0.90f;
+    CGFloat maxHeight = [UIScreen mainScreen].applicationFrame.size.height * 0.90f;
 
     NSAttributedString *attributedText = [[NSAttributedString alloc] initWithString:self.label.text
                                                                          attributes:@{NSFontAttributeName:_labelFont}];
     CGRect rect = [attributedText boundingRectWithSize:(CGSize){maxWidth, CGFLOAT_MAX}
                                                options:NSStringDrawingUsesLineFragmentOrigin
                                                context:nil];
-    CGFloat minWidth = MAX(rect.size.width, 180);
+    CGFloat minWidth = MAX(rect.size.width, 250);
     CGFloat minHeight = MIN(rect.size.height, maxHeight);
 
     self.label.frame = CGRectMake(0, 0, minWidth, minHeight);
@@ -128,6 +128,8 @@ CGFloat const kMMPopLabelTipPadding = 8.0f;
     self.label.frame = CGRectMake(_targetFrame.origin.x,
                                   _targetFrame.origin.y,
                                   minWidth, _targetFrame.size.height + _tipSize * 4);
+    
+    //self.label.backgroundColor = [UIColor greenColor];
 
     /* add buttons, if any */
     if (_buttons.count == 0) return;
@@ -381,7 +383,7 @@ CGFloat const kMMPopLabelTipPadding = 8.0f;
     
     if(_arrowType != MMPopLabelNoArrow){
     
-        UIBezierPath* tipPath = [UIBezierPath bezierPathWithRect: CGRectMake(0, 0, 11, 11)];
+        UIBezierPath* tipPath = [UIBezierPath bezierPathWithRect: CGRectMake(0, 0, 15, 15)];
         [_labelColor setFill];
         [tipPath fill];
     }
