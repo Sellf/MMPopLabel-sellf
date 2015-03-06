@@ -1,14 +1,20 @@
-//
-//  MMPopLabel.h
-//  MMPopLabel
-//
-//  Created by Milton Moura on 05/01/14.
-//  Copyright (c) 2014 Milton Moura. All rights reserved.
-//
 
 #import <UIKit/UIKit.h>
 #import "MMPopLabelDelegate.h"
 #import "MMLabel.h"
+
+
+///////////////////////////////////////////////////////////////////////////////
+#pragma mark - Animation Options
+///////////////////////////////////////////////////////////////////////////////
+
+
+typedef NS_OPTIONS(NSUInteger, MMPopLabelAnimationOptions) {
+    MMPopLabelAnimationOptionPopViewAndLabel = 0, // default
+    MMPopLabelAnimationOptionPopViewOnly = 1,
+    MMPopLabelAnimationOptionDontPop = 2
+};
+
 
 ///////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public Interface
@@ -31,13 +37,17 @@ typedef enum : NSUInteger {
 @property (assign) BOOL isTargetViewAnimated;
 @property (assign) BOOL dismissOnTouch;
 
+
 @property (nonatomic, weak) id<MMPopLabelDelegate> delegate;
 
+
 + (MMPopLabel *)popLabelWithText:(NSString *)text;
++ (MMPopLabel *)popLabelWithText:(NSString *)text options:(MMPopLabelAnimationOptions)options;
 - (void)addButton:(UIButton *)button;
 - (void)popAtView:(UIView *)view;
 - (void)popAtView:(UIView *)view withYOffset:(float)yOffset;
 - (void)popAtPoint:(CGPoint)point;
+- (void)popAtBarButtonItem:(UIBarButtonItem *)barButtonItem;
 - (void)dismiss;
 
 

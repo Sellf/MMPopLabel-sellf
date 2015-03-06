@@ -12,7 +12,7 @@ To use it in your view controller, with styles and buttons:
 
 ```objective-c
 // set appearance style
-[[MMPopLabel appearance] setLabelColor:[UIColor blueColor];
+[[MMPopLabel appearance] setLabelColor:[UIColor blueColor]];
 [[MMPopLabel appearance] setLabelTextColor:[UIColor whiteColor]];
 [[MMPopLabel appearance] setLabelTextHighlightColor:[UIColor greenColor]];
 [[MMPopLabel appearance] setLabelFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:12.0f]];
@@ -42,16 +42,36 @@ To show the label, just add this code to a button action or some other type of e
 - (IBAction)showLabel:(id)sender
 {
 	UIView *view = (UIView *)sender;
-    [_label popAtView:view];
+	[_label popAtView:view];
 }
 ```
 
-To receive the label events, just set your view controller as it's delegate and implement the MMPopLabelDelegate protocol:
+MMPopLabel now also supports *UIBarButtonItem*:
+
+```objective-c
+- (IBAction)showLabel:(id)sender
+{
+	UIBarButtonItem *barButtonItem = (UIBarButtonItem *)sender;
+	[_label popAtBarButtonItem:barButtonItem];
+}
+```
+
+To receive the label events, just set your view controller as it's delegate and implement the *MMPopLabelDelegate* protocol:
 
 ```objective-c
 - (void)dismissedPopLabel:(MMPopLabel *)popLabel;
 - (void)didPressButtonForPopLabel:(MMPopLabel *)popLabel atIndex:(NSInteger)index;
 ```
+
+To disable animations, use of the following option when setting up your label:
+
+```objective-c
+_label = [MMPopLabel popLabelWithText:
+          @"Lorem Ipsum is simply dummy text of the printing and typesetting industry. "
+          "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s." options:MMPopLabelAnimationOptionDontPop];
+```
+
+Check the *MMPopLabelAnimationOptions* enumeration for more options.
 
 ## Screenshots
 

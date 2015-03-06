@@ -1,10 +1,4 @@
-//
-//  MMPopLabel.m
-//  MMPopLabel
-//
-//  Created by Milton Moura on 05/01/14.
-//  Copyright (c) 2014 Milton Moura. All rights reserved.
-//
+
 
 #import "MMPopLabel.h"
 
@@ -35,6 +29,9 @@ CGFloat const kMMPopLabelTipPadding = 12.0f;
 @property (nonatomic, assign) CGPoint viewCenter;
 @property (nonatomic, assign) MMPopLabelArrowType arrowType;
 
+@property (nonatomic, assign) BOOL animateTargetView;
+@property (nonatomic, assign) BOOL animatePopLabel;
+
 @end
 
 
@@ -54,10 +51,32 @@ CGFloat const kMMPopLabelTipPadding = 12.0f;
 }
 
 
++ (MMPopLabel *)popLabelWithText:(NSString *)text options:(MMPopLabelAnimationOptions)options
+{
+    MMPopLabel *popLabel = [MMPopLabel popLabelWithText:text];
+
+    if (options == MMPopLabelAnimationOptionPopViewAndLabel) {
+        popLabel.animateTargetView = YES;
+        popLabel.animatePopLabel = YES;
+    } else if (options == MMPopLabelAnimationOptionPopViewOnly) {
+        popLabel.animateTargetView = NO;
+        popLabel.animatePopLabel = YES;
+    } else {
+        popLabel.animateTargetView = NO;
+        popLabel.animatePopLabel = NO;
+    }
+
+    return popLabel;
+}
+
+
 - (id)initWithText:(NSString *)text
 {
     if (self = [super initWithFrame:CGRectZero])
     {
+        self.animateTargetView = YES;
+        self.animatePopLabel = YES;
+
         self.buttons = [@[] mutableCopy];
         
         self.backgroundColor = [UIColor clearColor];
@@ -183,55 +202,82 @@ CGFloat const kMMPopLabelTipPadding = 12.0f;
 {
     if (self.hidden == NO) return;
 
+    CGPoint center = view.center;
+    if ([[view superview] superview] != self.window) {
+        center = [self.window convertPoint:view.center fromView:view];
+    }
+    self.center = center;
+
     _arrowType = MMPopLabelTopArrow;
 
-    CGPoint position = CGPointMake(view.center.x, view.center.y + view.frame.size.height / 2 + kMMPopLabelViewPadding);
-    self.center = position;
-    if (position.x + (self.frame.size.width / 2) > [UIScreen mainScreen].applicationFrame.size.width) {
-        CGFloat diff = (self.frame.size.width + self.frame.origin.x - [UIScreen mainScreen].applicationFrame.size.width) + kMMPopLabelSidePadding;
+    CGPoint position = CGPointMake(center.x, center.y + self.frame.size.height / 2 + view.frame.size.height / 2 + kMMPopLabelViewPadding);
+
+    if (position.x + (self.bounds.size.width / 2) > [UIScreen mainScreen].applicationFrame.size.width) {
+        CGFloat diff = (self.bounds.size.width + self.frame.origin.x - [UIScreen mainScreen].applicationFrame.size.width) + kMMPopLabelSidePadding;
         position = CGPointMake(view.center.x - diff, position.y);
     } else if (self.frame.origin.x < 0) {
         CGFloat diff = - self.frame.origin.x + kMMPopLabelSidePadding;
-        position = CGPointMake(view.center.x + diff, view.center.y + view.frame.size.height / 2);
-    }
-    
-    if (self.frame.origin.y + self.frame.size.height > [UIScreen mainScreen].applicationFrame.size.height) {
-        _arrowType = MMPopLabelBottomArrow;
-        position = CGPointMake(position.x,
-                               [UIScreen mainScreen].applicationFrame.size.height - (self.frame.size.height + view.frame.size.height + kMMPopLabelViewPadding));
+        position = CGPointMake(center.x + diff, center.y + view.frame.size.height / 2);
     }
 
-    CGPoint centerPoint = CGPointMake(position.x, position.y + self.frame.size.height / 2);
+    if (self.frame.origin.y + self.frame.size.height + (self.buttons.count > 0 ? 44 : 0) > [UIScreen mainScreen].applicationFrame.size.height) {
+        _arrowType = MMPopLabelBottomArrow;
+        position = CGPointMake(position.x,
+                               (self.frame.origin.y - view.frame.size.height / 2 - kMMPopLabelViewPadding));
+    } else if (self.frame.origin.y < 0) {
+        position = CGPointMake(position.x, center.y + self.frame.size.height / 2 + view.frame.size.height / 2 + kMMPopLabelViewPadding);
+    }
+
+     CGPoint centerPoint = CGPointMake(position.x, position.y);
     self.center = position;
-    
+
+    _viewCenter = CGPointMake(view.center.x - self.frame.origin.x - 8, view.center.y);
+
     NSInteger duration = 1.0f;
     NSInteger delay = 0.0f;
-    
+
     self.alpha = 0.0f;
     self.hidden = NO;
-    
-    _viewCenter = CGPointMake(view.center.x - self.frame.origin.x - 8, view.center.y);
+
     [self setNeedsDisplay];
-    
-    self.transform = CGAffineTransformMakeScale(0, 0);
-    if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(0, 0);
+
+    if (self.animatePopLabel) {
+        self.transform = CGAffineTransformMakeScale(0, 0);
+    }
+    if (self.animateTargetView) {
+        view.transform = CGAffineTransformMakeScale(0, 0);
+    }
     [UIView animateKeyframesWithDuration:duration/6.0f delay:delay options:0 animations:^{
         self.center = centerPoint;
         self.alpha = 1.0f;
-        self.transform = CGAffineTransformMakeScale(1.2, 1.2);
-        if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(1.2, 1.2);
+        if (self.animatePopLabel) {
+            self.transform = CGAffineTransformMakeScale(1.2, 1.2);
+        }
+        if (self.animateTargetView) {
+            view.transform = CGAffineTransformMakeScale(1.2, 1.2);
+        }
     } completion:^(BOOL finished) {
-        [UIView animateKeyframesWithDuration:duration/6.0f delay:0 options:0 animations:^{
-            self.transform = CGAffineTransformMakeScale(0.9, 0.9);
-            if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(0.9, 0.9);
-        } completion:^(BOOL finished) {
+        if (self.animateTargetView || self.animatePopLabel) {
             [UIView animateKeyframesWithDuration:duration/6.0f delay:0 options:0 animations:^{
-                self.transform = CGAffineTransformMakeScale(1, 1);
-                if(self.isTargetViewAnimated) view.transform = CGAffineTransformMakeScale(1, 1);
+                if (self.animatePopLabel) {
+                    self.transform = CGAffineTransformMakeScale(0.9, 0.9);
+                }
+                if (self.animateTargetView) {
+                    view.transform = CGAffineTransformMakeScale(0.9, 0.9);
+                }
             } completion:^(BOOL finished) {
-                // completion block empty?
+                [UIView animateKeyframesWithDuration:duration/6.0f delay:0 options:0 animations:^{
+                    if (self.animatePopLabel) {
+                        self.transform = CGAffineTransformMakeScale(1, 1);
+                    }
+                    if (self.animateTargetView) {
+                        view.transform = CGAffineTransformMakeScale(1, 1);
+                    }
+                } completion:^(BOOL finished) {
+                    // completion block empty?
+                }];
             }];
-        }];
+        }
     }];
 }
 
@@ -345,6 +391,17 @@ CGFloat const kMMPopLabelTipPadding = 12.0f;
 }
 
 
+- (void)popAtBarButtonItem:(UIBarButtonItem *)barButtonItem
+{
+    UIView *view = [barButtonItem valueForKey:@"view"];
+    NSAssert(view != nil, @"Unable to obtain UIBarButtonItem's View");
+
+    if (view != nil) {
+        [self popAtView:view];
+    }
+}
+
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if(self.dismissOnTouch){
@@ -409,7 +466,9 @@ CGFloat const kMMPopLabelTipPadding = 12.0f;
 - (void)buttonPressed:(id)sender
 {
     UIButton *button = (UIButton *)sender;
-    [_delegate didPressButtonForPopLabel:self atIndex:button.tag];
+    if (_delegate != nil) {
+        [_delegate didPressButtonForPopLabel:self atIndex:button.tag];
+    }
     [self dismiss];
 }
 
