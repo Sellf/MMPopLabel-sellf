@@ -283,6 +283,16 @@ CGFloat const kMMPopLabelTipPadding = 12.0f;
 
 - (void)popAtView:(UIView *)view withYOffset:(float)yOffset
 {
+    [self popAtView:view withXOffset:0.0 andWithYOffset:yOffset];
+}
+
+- (void)popAtView:(UIView *)view withXOffset:(float)xOffset
+{
+    [self popAtView:view withXOffset:xOffset andWithYOffset:0.0];
+}
+
+- (void)popAtView:(UIView *)view withXOffset:(float)xOffset andWithYOffset:(float)yOffset
+{
     if (self.hidden == NO) return;
     
     _arrowType = MMPopLabelTopArrow;
@@ -303,7 +313,7 @@ CGFloat const kMMPopLabelTipPadding = 12.0f;
                                [UIScreen mainScreen].applicationFrame.size.height - (self.frame.size.height + view.frame.size.height + kMMPopLabelViewPadding));
     }
     
-    CGPoint centerPoint = CGPointMake(position.x, position.y + yOffset + self.frame.size.height / 2);
+    CGPoint centerPoint = CGPointMake(position.x + xOffset, position.y + yOffset + self.frame.size.height / 2);
     
     self.center = position;
     
@@ -314,7 +324,7 @@ CGFloat const kMMPopLabelTipPadding = 12.0f;
     self.hidden = NO;
     
     
-    _viewCenter = CGPointMake(view.center.x - self.frame.origin.x - 8, view.center.y + yOffset);
+    _viewCenter = CGPointMake(view.center.x - self.frame.origin.x - 8 - xOffset, view.center.y + yOffset);
     [self setNeedsDisplay];
     
     self.transform = CGAffineTransformMakeScale(0, 0);
