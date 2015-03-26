@@ -45,7 +45,9 @@ typedef enum : NSUInteger {
 + (MMPopLabel *)popLabelWithText:(NSString *)text options:(MMPopLabelAnimationOptions)options;
 - (void)addButton:(UIButton *)button;
 - (void)popAtView:(UIView *)view;
+- (void)popAtView:(UIView *)view withXOffset:(float)xOffset;
 - (void)popAtView:(UIView *)view withYOffset:(float)yOffset;
+- (void)popAtView:(UIView *)view withXOffset:(float)xOffset andWithYOffset:(float)yOffset;
 - (void)popAtPoint:(CGPoint)point;
 - (void)popAtBarButtonItem:(UIBarButtonItem *)barButtonItem;
 - (void)dismiss;
